@@ -1,4 +1,4 @@
-protolus-templates.js
+protolus-templates-php 
 ===========
 
 Protolus templates are a relative of the Smarty syntax, focused on testing and modularity/reusability through template recursion and view-based rendering control to enable [MVVM](http://russelleast.wordpress.com/2008/08/09/overview-of-the-modelview-viewmodel-mvvm-pattern-and-data-binding/).
@@ -6,12 +6,12 @@ Protolus templates are a relative of the Smarty syntax, focused on testing and m
 Template Recursion
 ------------------
 
-The templates started as an experiment to validate recursive smarty rendering in php, and slowly extended from there incorporating multi-level controllers, wrappers, 2nd pass javascript injection and pluggable tags. The basic concept is that a unit of work is a 'panel' which is a chunk of html which adds a Smarty-like macro language to add render logic to the basic HTML, on top of this we add a number of macros which add awareness of our environment along with macros to control special features. When it moved to JS it naturally came along with a new parser/renderer.
+The templates started as an experiment to validate recursive smarty rendering in php, and slowly extended from there incorporating multi-level controllers, wrappers, 2nd pass javascript injection and pluggable tags. The basic concept is that a unit of work is a 'panel' which is a chunk of html which adds a Smarty-like macro language to add render logic to the basic HTML, on top of this we add a number of macros which add awareness of our environment along with macros to control special features.
 
 View Based Control
 ------------------
 
-The key feature is render flow is controlled by the view rather than the 'controller' logic (which only serves to populate data for a given interface). So you can stub out an entire interface without touching any controllers, and the pure JS rendering means that this can happen on the server or in the browser.
+The key feature is render flow is controlled by the view rather than the 'controller' logic (which only serves to populate data for a given interface). So you can stub out an entire interface without touching any controllers.
 
 ![Screenshot](http://wiki.protol.us/images/9/9e/ProtolusRenderTree.png )
 
@@ -19,12 +19,16 @@ Macros
 ------
 
 1. **page**
-This is where we set the main data for the page macro, and should be set on the entry panel of all requests (rather than us manually setting them in the controller, and thus obfuscating it from the GUI layer).
+    This is where we set the main data for the page macro, and should be set on the entry panel of all requests (rather than us manually setting them in the controller, and thus obfuscating it from the GUI layer).
     1. title : this is the actual title tag content
     2. heading: page heading, used as a subsection label, but can be used for most anything.
     3. meta: text for the meta tag
     4. wrapper: this is the wrapper that we will render the page inside of
-            
+    
+    **example:**
+    
+        {page title="My Homepage" wrapper="homepage_wrapper" meta="My Homepage Meta"}
+
 2. **panel**
     This is where a subpanel is rendered as well as a test is defined. In order to render a panel:
         
@@ -67,14 +71,17 @@ This is where we set the main data for the page macro, and should be set on the 
 5. **literal**
     An encapsulation to prevent '{}' from attempting to parse as macros, useful for wrapping inline js or css.
 
+6. **and more!**
+    Complete support of all built-in functions,modifiers and variables available in [Smarty 2](http://www.smarty.net/docsv2/en/language.builtin.functions.tpl). 
+
 'Controllers'
 -------------
 
-A controller is just an arbitrary piece of JS which allows you to register data with the view's renderer. This is exposed as 'renderer' in the scope of the controller where you do the assignments.
+A controller is just an arbitrary piece of php which allows you to register data with the view's renderer. This is exposed as '$renderer' in the scope of the controller where you do the assignments.
         
-        renderer.set('myValue', aVariable);
+        $renderer->set('myValue', $aVariable);
         
-You can use the data layer, interact with an API or manually manage these resources the controllers are raw node.js, so they are agnostic to the origin of the data.
+You can use the data layer, interact with an API or manually manage these resources the controllers are straight php, so they are agnostic to the origin of the data.
     
 Wrappers
 --------
@@ -95,37 +102,15 @@ Resources may be targeted to outputs (by default all output will be to 'HEAD' wh
     
 Usage
 -----
+Simply include a panel in the App/Panels directory and a controller(optional) of the same name in the App/Controllers directory.
+example:
 
-First, intialize the Templates subsystem;
+    + <Protolus Project>/App/Panels/test.panel.tpl
+    + <Protolus Project>/App/Controllers/test.controller.php
 
-    Templates([<options>]);
-    
-There are a variety of available options:
+and navigate to the corresponding url in the browser: 
 
-1. scriptDirectory : The directory from which to load the controllers, defaults to 'App/Panels'
-2. templateDirectory : The directory from which to load the panels, defaults to 'App/Controllers'
-3. doTestExistence : The function to use to load a panel, defaults to a file loader
-4. doLoad : The function  used to test for a panel's existence, defaults to testing file existence
-    
-Now, you're ready to render:
-
-    Templates.renderPanel('page', function(html){
-        console.log('html', html);
-    });
-
-And if you need to inject 'something' in a target 'FOO' you've put in the page, which has been rendered into myVar
-
-    myVar = Templates.insertTextAtTarget('something', 'FOO', myVar);
-    
-inserts wherever it finds the signature on the page
-
-    <!--[FOO]-->
-    
-Testing
--------
-Tests use mocha/should to execute the tests from root
-
-    mocha
+    http://yoursite.url/test
 
 If you find any rough edges, please submit a bug!
 
