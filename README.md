@@ -102,15 +102,6 @@ Resources may be targeted to outputs (by default all output will be to 'HEAD' wh
     
 Usage
 -----
-Simply include a panel in the App/Panels directory and a controller(optional) of the same name in the App/Controllers directory.
-example:
-
-    + <Protolus Project>/App/Panels/test.panel.tpl
-    + <Protolus Project>/App/Controllers/test.controller.php
-
-and navigate to the corresponding url in the browser: 
-
-    http://yoursite.url/test
 
 If you find any rough edges, please submit a bug!
 
